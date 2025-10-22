@@ -1,0 +1,40 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore package-lock
+package-lock.json
+
+# Ignore logs
+*.log
+npm-debug.log*
+
+# Ignore OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore environment files
+.env
+.env.local
+.env.production
+
+# Ignore build outputs
+dist/
+build/
+
+# Ignore Vercel
+.vercel

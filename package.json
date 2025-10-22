@@ -1,0 +1,23 @@
+{
+  "name": "zerobyte-portfolio",
+  "version": "1.0.0",
+  "description": "Freelancing portfolio for Amit Gaurav showcasing full-stack development skills",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static site - no build required'",
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "portfolio",
+    "freelancer",
+    "full-stack",
+    "developer",
+    "web-development"
+  ],
+  "author": "Amit Gaurav",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}

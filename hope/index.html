@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hope - Smart Solutions for Smarter Schools.</title>
+    <meta name="description" content="A social platform connecting people in need with volunteers and resources in their community.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e74c3c;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #e74c3c;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            display: flex;
+            align-items: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,0 500,300 1000,0 1000,1000 0,1000"/><circle cx="700" cy="400" r="200" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            opacity: 0.8;
+            line-height: 1.7;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #e74c3c;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+        }
+
+        /* Mission Section */
+        .mission {
+            padding: 6rem 0;
+            background: white;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 4rem;
+            font-size: 1.1rem;
+        }
+
+        .mission-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .mission-text h3 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #e74c3c;
+        }
+
+        .mission-text p {
+            color: #555;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+
+        .mission-visual {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            height: 400px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(231, 76, 60, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.7;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 6rem 0;
+            background: white;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .step-card {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .step-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .step-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Technology Section */
+        .tech-stack {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tech-stack .section-title {
+            color: white;
+        }
+
+        .tech-stack .section-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .tech-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .tech-item h4 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-item p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* Impact Section */
+        .impact {
+            padding: 6rem 0;
+            background: white;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .impact-card {
+            background: #f8f9fa;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .impact-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #e74c3c;
+            margin-bottom: 1rem;
+        }
+
+        .impact-card h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .impact-card p {
+            color: #666;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .footer p {
+            opacity: 0.7;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .mission-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container">
+                <a href="#" class="nav-logo">Hope</a>
+                <ul class="nav-menu">
+                    <li><a href="#mission" class="nav-link">Mission</a></li>
+                    <li><a href="#features" class="nav-link">Features</a></li>
+                    <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+                    <li><a href="#tech" class="nav-link">Technology</a></li>
+                </ul>
+                <a href="../index.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Portfolio
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Hope</h1>
+                <p class="hero-subtitle">Connecting Communities, Creating Change</p>
+                <p class="hero-description">
+                    A social platform that bridges the gap between those who need help and those who want to help. 
+                    Together, we can build stronger, more supportive communities where no one faces challenges alone.
+                </p>
+                <div class="cta-buttons">
+                    <a href="#mission" class="btn btn-primary">Learn More</a>
+                    <a href="#features" class="btn btn-secondary">Explore Features</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">People Helped</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5K+</div>
+                        <div class="stat-label">Active Volunteers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">100+</div>
+                        <div class="stat-label">Cities Covered</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section id="mission" class="mission">
+        <div class="container">
+            <div class="mission-content">
+                <div class="mission-text">
+                    <h3>Our Mission</h3>
+                    <p>
+                        Hope is built on the belief that every community has the power to support its members. 
+                        Our platform connects people in need with local volunteers and resources, creating a 
+                        network of mutual aid and support.
+                    </p>
+                    <p>
+                        Whether someone needs help with groceries, transportation, tutoring, or emotional support, 
+                        Hope ensures that help is just a few clicks away. We're building bridges between neighbors 
+                        and fostering a culture of compassion and community care.
+                    </p>
+                    <p>
+                        Every act of kindness, no matter how small, creates ripples of positive change. 
+                        Together, we're creating a world where everyone has access to the support they need to thrive.
+                    </p>
+                </div>
+                <div class="mission-visual">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Platform Features</h2>
+            <p class="section-subtitle">Comprehensive tools to facilitate community support and connection</p>
+            
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Location-Based Matching</h3>
+                    <p>Smart algorithms connect people with nearby volunteers and resources, ensuring help is always within reach in your local community.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Real-Time Chat</h3>
+                    <p>Secure, instant messaging allows volunteers and those seeking help to coordinate efficiently and build meaningful connections.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Safety & Verification</h3>
+                    <p>Comprehensive verification system and safety features ensure all interactions are secure and trustworthy for all users.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <h3>Event Coordination</h3>
+                    <p>Organize community events, volunteer drives, and group activities to strengthen neighborhood bonds and collective impact.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <h3>Resource Sharing</h3>
+                    <p>Share and discover available resources, from food banks to skill exchanges, creating a comprehensive community support network.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Impact Tracking</h3>
+                    <p>Monitor your contributions and see the real impact you're making in your community with detailed analytics and success stories.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Simple steps to connect, help, and make a difference</p>
+            
+            <div class="steps-grid">
+                <div class="step-card fade-in">
+                    <div class="step-number">1</div>
+                    <h4>Sign Up & Verify</h4>
+                    <p>Create your profile and complete our simple verification process to ensure a safe community for everyone.</p>
+                </div>
+                
+                <div class="step-card fade-in">
+                    <div class="step-number">2</div>
+                    <h4>Post or Browse</h4>
+                    <p>Post a request for help or browse available opportunities to volunteer in your local area.</p>
+                </div>
+                
+                <div class="step-card fade-in">
+                    <div class="step-number">3</div>
+                    <h4>Connect & Chat</h4>
+                    <p>Use our secure messaging system to coordinate details and build connections with community members.</p>
+                </div>
+                
+                <div class="step-card fade-in">
+                    <div class="step-number">4</div>
+                    <h4>Make a Difference</h4>
+                    <p>Complete the request, share your experience, and see the positive impact you've made in someone's life.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Stack Section -->
+    <section id="tech" class="tech-stack">
+        <div class="container">
+            <h2 class="section-title">Built with Modern Technology</h2>
+            <p class="section-subtitle">Scalable, secure, and user-friendly platform architecture</p>
+            
+            <div class="tech-grid">
+                <div class="tech-item fade-in">
+                    <div class="tech-icon">
+                        <i class="fab fa-vuejs"></i>
+                    </div>
+                    <h4>Vue.js</h4>
+                    <p>Progressive frontend framework</p>
+                </div>
+                
+                <div class="tech-item fade-in">
+                    <div class="tech-icon">
+                        <i class="fab fa-node-js"></i>
+                    </div>
+                    <h4>Express.js</h4>
+                    <p>Fast, minimalist backend</p>
+                </div>
+                
+                <div class="tech-item fade-in">
+                    <div class="tech-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h4>Socket.io</h4>
+                    <p>Real-time communication</p>
+                </div>
+                
+                <div class="tech-item fade-in">
+                    <div class="tech-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h4>PostgreSQL</h4>
+                    <p>Reliable relational database</p>
+                </div>
+                
+                <div class="tech-item fade-in">
+                    <div class="tech-icon">
+                        <i class="fas fa-map"></i>
+                    </div>
+                    <h4>Google Maps API</h4>
+                    <p>Location-based services</p>
+                </div>
+                
+                <div class="tech-item fade-in">
+                    <div class="tech-icon">
+                        <i class="fab fa-docker"></i>
+                    </div>
+                    <h4>Docker</h4>
+                    <p>Containerized deployment</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section class="impact">
+        <div class="container">
+            <h2 class="section-title">Making Real Impact</h2>
+            <p class="section-subtitle">Measurable change in communities across the globe</p>
+            
+            <div class="impact-grid">
+                <div class="impact-card fade-in">
+                    <div class="impact-number">85%</div>
+                    <h4>Success Rate</h4>
+                    <p>Requests successfully fulfilled within 24 hours</p>
+                </div>
+                
+                <div class="impact-card fade-in">
+                    <div class="impact-number">500K</div>
+                    <h4>Hours Volunteered</h4>
+                    <p>Total volunteer hours contributed through the platform</p>
+                </div>
+                
+                <div class="impact-card fade-in">
+                    <div class="impact-number">95%</div>
+                    <h4>User Satisfaction</h4>
+                    <p>Positive feedback from both helpers and those helped</p>
+                </div>
+                
+                <div class="impact-card fade-in">
+                    <div class="impact-number">12</div>
+                    <h4>Countries</h4>
+                    <p>Global reach with active communities worldwide</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Build Something Meaningful?</h2>
+            <p>This project showcases my ability to create impactful social platforms that bring communities together and create positive change.</p>
+            <a href="../index.html#contact" class="btn btn-primary">Let's Discuss Your Vision</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Hope Project - Created by Amit Gaurav. Portfolio demonstration.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll animations
+        function initAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            const animateElements = document.querySelectorAll('.fade-in');
+            animateElements.forEach(el => observer.observe(el));
+        }
+
+        // Counter animation
+        function animateCounters() {
+            const stats = document.querySelectorAll('.stat-number, .impact-number');
+            const statsObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        statsObserver.unobserve(entry.target);
+                    }
+                });
+            });
+
+            stats.forEach(stat => statsObserver.observe(stat));
+        }
+
+        function animateCounter(element) {
+            const target = parseInt(element.textContent.replace(/\D/g, ''));
+            const increment = target / 50;
+            let current = 0;
+            const isPercentage = element.textContent.includes('%');
+            const hasPlus = element.textContent.includes('+');
+            const hasK = element.textContent.includes('K');
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                
+                let displayValue = Math.floor(current);
+                if (hasK && current >= target) displayValue += 'K';
+                if (isPercentage) displayValue += '%';
+                if (hasPlus && current >= target) displayValue += '+';
+                
+                element.textContent = displayValue;
+            }, 20);
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    const offsetTop = targetSection.offsetTop - 80;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initAnimations();
+            animateCounters();
+        });
+    </script>
+</body>
+</html>
