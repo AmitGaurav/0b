@@ -1,25 +1,6 @@
 {
+  "version": 2,
   "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/serenity/(.*)",
-      "dest": "/serenity/$1"
-    },
-    {
-      "src": "/hope/(.*)",
-      "dest": "/hope/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
-  "functions": {
-    "contact": "./api/contact.js"
-  }
+    { "src": "index.html", "use": "@vercel/static" }
+  ]
 }
