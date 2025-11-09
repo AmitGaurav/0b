@@ -4,7 +4,10 @@
   "builds": [
     {
       "src": "serenity/package.json",
-      "use": "@vercel/node"
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
     },
     {
       "src": "**/*",
@@ -13,8 +16,19 @@
   ],
   "routes": [
     {
+      "src": "/serenity",
+      "dest": "/serenity/index.html"
+    },
+    {
       "src": "/serenity/(.*)",
       "dest": "/serenity/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/serenity/[^.]+",
+      "dest": "/serenity/index.html"
     },
     {
       "src": "/(.*)",
