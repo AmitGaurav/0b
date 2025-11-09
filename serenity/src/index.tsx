@@ -29,7 +29,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename="/serenity">
         <ThemeProvider theme={theme}>
           <GlobalStyles />
           <AuthProvider>

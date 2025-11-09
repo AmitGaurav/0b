@@ -2,6 +2,7 @@
   "name": "serenity-ui",
   "version": "1.0.0",
   "private": true,
+  "homepage": "/serenity",
   "description": "Modular React application with authentication and user management",
   "scripts": {
     "start": "react-scripts start",
