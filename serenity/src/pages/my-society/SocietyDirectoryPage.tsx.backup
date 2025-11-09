@@ -1,0 +1,822 @@
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import styled from 'styled-components';
+import {
+  FiUsers,
+  FiSearch,
+  FiFilter,
+  FiPlus,
+  FiDownload,
+  FiRefreshCw,
+  FiMoreVertical,
+  FiEdit3,
+  FiTrash2,
+  FiEye,
+  FiClock,
+  FiCalendar,
+  FiUser,
+  FiUserCheck,
+  FiUserX,
+  FiSettings,
+  FiChevronDown,
+  FiChevronUp,
+  FiChevronLeft,
+  FiChevronRight,
+  FiGrid,
+  FiList,
+  FiX,
+  FiCheck,
+  FiCheckCircle,
+  FiXCircle,
+  FiAlertCircle,
+  FiBriefcase,
+  FiShield,
+  FiHome,
+  FiTruck,
+  FiPhone,
+  FiMail
+} from 'react-icons/fi';
+import { toast } from 'react-toastify';
+import {
+  DirectoryEntry,
+  DirectoryEntryType,
+  MemberDirectoryEntry,
+  VendorDirectoryEntry,
+  StaffDirectoryEntry,
+  SecurityDirectoryEntry,
+  MemberRole,
+  VendorType,
+  StaffRole,
+  SecurityRole,
+  Department,
+  PersonStatus,
+  UnitType,
+  SortDirection,
+  DirectorySortField,
+  DirectorySearchFilters,
+  DirectorySortOptions,
+  DirectoryPaginationOptions,
+  DirectoryExportOptions,
+  ExportFormat,
+  DirectoryExportField,
+  DirectoryTab,
+  DirectoryStats,
+  DirectoryViewConfig,
+  getEntryTypeLabel,
+  getStatusColor,
+  isMemberEntry,
+  isVendorEntry,
+  isStaffEntry,
+  isSecurityEntry
+} from '../../types/society-directory';
+import { PageContainer, PageTitle, ContentCard } from '../../components/common/PageLayout';
+
+// Mock data generation functions
+const generateRandomDate = (startDate: Date, endDate: Date): Date => {
+  const timeDiff = endDate.getTime() - startDate.getTime();
+  const randomTime = Math.random() * timeDiff;
+  return new Date(startDate.getTime() + randomTime);
+};
+
+const createMockMemberEntries = (count: number): MemberDirectoryEntry[] => {
+  const names = [
+    'John Smith', 'Sarah Johnson', 'Michael Brown', 'Emily Davis', 'David Wilson',
+    'Lisa Anderson', 'Robert Taylor', 'Jennifer Martinez', 'Christopher Garcia', 'Amanda Rodriguez',
+    'Matthew Lopez', 'Michelle Lee', 'Daniel White', 'Ashley Thompson', 'James Clark',
+    'Jessica Lewis', 'William Walker', 'Nicole Hall', 'Richard Allen', 'Stephanie Young'
+  ];
+
+  return Array.from({ length: count }, (_, i) => {
+    const name = names[i % names.length];
+    const email = `${name.toLowerCase().replace(' ', '.')}@example.com`;
+    
+    const role = Object.values(MemberRole)[Math.floor(Math.random() * Object.values(MemberRole).length)];
+    const unitType = Object.values(UnitType)[Math.floor(Math.random() * Object.values(UnitType).length)];
+    const dateJoined = generateRandomDate(new Date(2018, 0, 1), new Date());
+    
+    return {
+      id: i + 1,
+      type: DirectoryEntryType.MEMBER,
+      name,
+      email,
+      phone: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      address: `${Math.floor(Math.random() * 9000 + 1000)} Example St, City, State, Zip`,
+      profilePicture: Math.random() > 0.3 ? `https://i.pravatar.cc/150?img=${(i % 70) + 1}` : undefined,
+      status: Object.values(PersonStatus)[Math.floor(Math.random() * Object.values(PersonStatus).length)],
+      dateJoined,
+      emergencyContact: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      documents: Array(Math.floor(Math.random() * 5)).fill('').map(() => `document-${Math.random().toString(36).substring(7)}.pdf`),
+      notes: Math.random() > 0.7 ? `Notes for ${name}` : undefined,
+      createdAt: new Date(dateJoined.getTime() - 1000 * 60 * 60 * 24 * 30),
+      updatedAt: new Date(),
+      role,
+      unitNumber: `${String.fromCharCode(65 + Math.floor(Math.random() * 5))}-${Math.floor(Math.random() * 999 + 100)}`,
+      unitType,
+      floorNumber: Math.floor(Math.random() * 20) + 1,
+      blockNumber: Math.random() > 0.5 ? String.fromCharCode(65 + Math.floor(Math.random() * 10)) : undefined,
+      membershipId: `MEM-${Math.floor(Math.random() * 9000 + 1000)}`,
+      familyMembers: Math.floor(Math.random() * 6),
+      vehicleCount: Math.floor(Math.random() * 4),
+      balanceAmount: Math.floor(Math.random() * 10000) / 100,
+      isCommitteeMember: Math.random() > 0.8,
+      committeePosition: Math.random() > 0.8 ? ['President', 'Secretary', 'Treasurer', 'Member'][Math.floor(Math.random() * 4)] : undefined
+    };
+  });
+};
+
+const createMockVendorEntries = (count: number): VendorDirectoryEntry[] => {
+  const companyNames = [
+    'ABC Maintenance', 'XYZ Security Services', 'Sparkle Cleaning Co', 'Fresh Catering', 
+    'Reliable Transport', 'City Utilities', 'Premium Supplies', 'QuickFix Services',
+    'GreenThumb Gardening', 'TechPro Solutions', 'SwiftServe Delivery', 'Elite Staffing',
+    'SafeGuard Security', 'CleanMaster Pro', 'FoodFirst Catering', 'PowerSource Electric',
+    'AquaPure Water', 'BuildRight Construction', 'ComfortZone HVAC', 'WasteAway Disposal'
+  ];
+  
+  return Array.from({ length: count }, (_, i) => {
+    const companyName = companyNames[i % companyNames.length];
+    const contactName = `Contact for ${companyName}`;
+    const email = `contact@${companyName.toLowerCase().replace(/\s+/g, '')}.com`;
+    const vendorType = Object.values(VendorType)[Math.floor(Math.random() * Object.values(VendorType).length)];
+    const contractStartDate = generateRandomDate(new Date(2019, 0, 1), new Date());
+    const contractEndDate = new Date(contractStartDate.getTime() + (Math.random() * 365 * 2 + 365) * 24 * 60 * 60 * 1000);
+    
+    return {
+      id: 1000 + i,
+      type: DirectoryEntryType.VENDOR,
+      name: contactName,
+      email,
+      phone: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      address: `${Math.floor(Math.random() * 9000 + 1000)} Business Ave, City, State, Zip`,
+      profilePicture: Math.random() > 0.5 ? `https://i.pravatar.cc/150?img=${(i % 70) + 30}` : undefined,
+      status: Math.random() > 0.2 ? PersonStatus.ACTIVE : Object.values(PersonStatus)[Math.floor(Math.random() * Object.values(PersonStatus).length)],
+      dateJoined: contractStartDate,
+      emergencyContact: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      documents: Array(Math.floor(Math.random() * 5 + 1)).fill('').map(() => `vendor-doc-${Math.random().toString(36).substring(7)}.pdf`),
+      notes: Math.random() > 0.5 ? `Notes for ${companyName}` : undefined,
+      createdAt: new Date(contractStartDate.getTime() - 1000 * 60 * 60 * 24 * 15),
+      updatedAt: new Date(),
+      vendorType,
+      companyName,
+      gstNumber: Math.random() > 0.3 ? `GST${Math.floor(Math.random() * 9000 + 1000)}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}` : undefined,
+      contractStartDate,
+      contractEndDate,
+      serviceAreas: Array(Math.floor(Math.random() * 4 + 1))
+        .fill('')
+        .map(() => ['Common Areas', 'Residential Units', 'Office Spaces', 'External Areas', 'Parking', 'Gardens', 'Lobby', 'Security Zones'][Math.floor(Math.random() * 8)]),
+      rating: Math.floor(Math.random() * 50 + 50) / 10, // 5.0 - 10.0
+      totalContracts: Math.floor(Math.random() * 10) + 1,
+      isActive: Math.random() > 0.1,
+      contactPerson: contactName,
+      licenseNumber: `LIC-${Math.floor(Math.random() * 9000 + 1000)}-${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`
+    };
+  });
+};
+
+const createMockStaffEntries = (count: number): StaffDirectoryEntry[] => {
+  const names = [
+    'George Smith', 'Maria Rodriguez', 'Henry Johnson', 'Aisha Patel', 'Carlos Gomez',
+    'Olivia Chen', 'Jamal Wilson', 'Emma Brown', 'Raj Sharma', 'Sophia Lee',
+    'Andre Thompson', 'Leila Hassan', 'Devon Taylor', 'Yuki Tanaka', 'Miguel Sanchez',
+    'Fatima Khan', 'Isaac Cohen', 'Zara Ahmed', 'Tyrone Jackson', 'Nina Kim'
+  ];
+
+  return Array.from({ length: count }, (_, i) => {
+    const name = names[i % names.length];
+    const email = `${name.toLowerCase().replace(' ', '.')}@serenitystaff.com`;
+    
+    const role = Object.values(StaffRole)[Math.floor(Math.random() * Object.values(StaffRole).length)];
+    const department = Object.values(Department)[Math.floor(Math.random() * Object.values(Department).length)];
+    const dateJoined = generateRandomDate(new Date(2019, 0, 1), new Date());
+    const dateOfBirth = generateRandomDate(new Date(1970, 0, 1), new Date(2000, 0, 1));
+    const gender = ['MALE', 'FEMALE', 'OTHER'][Math.floor(Math.random() * 3)] as 'MALE' | 'FEMALE' | 'OTHER';
+    
+    return {
+      id: 2000 + i,
+      type: DirectoryEntryType.STAFF,
+      name,
+      email,
+      phone: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      address: `${Math.floor(Math.random() * 9000 + 1000)} Residence St, City, State, Zip`,
+      profilePicture: Math.random() > 0.3 ? `https://i.pravatar.cc/150?img=${(i % 70) + 10}` : undefined,
+      status: Math.random() > 0.15 ? PersonStatus.ACTIVE : Object.values(PersonStatus)[Math.floor(Math.random() * Object.values(PersonStatus).length)],
+      dateJoined,
+      emergencyContact: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      documents: Array(Math.floor(Math.random() * 5 + 2)).fill('').map(() => `staff-doc-${Math.random().toString(36).substring(7)}.pdf`),
+      notes: Math.random() > 0.6 ? `Notes for ${name}` : undefined,
+      createdAt: new Date(dateJoined.getTime() - 1000 * 60 * 60 * 24 * 5),
+      updatedAt: new Date(),
+      role,
+      department,
+      employeeId: `EMP-${Math.floor(Math.random() * 9000 + 1000)}`,
+      salary: Math.floor(Math.random() * 3000 + 2000) * 100,
+      workingHours: ['9:00 AM - 5:00 PM', '8:00 AM - 4:00 PM', '10:00 AM - 6:00 PM'][Math.floor(Math.random() * 3)],
+      supervisorId: Math.random() > 0.7 ? 2000 + Math.floor(Math.random() * count) : undefined,
+      supervisorName: Math.random() > 0.7 ? names[Math.floor(Math.random() * names.length)] : undefined,
+      skills: Array(Math.floor(Math.random() * 5 + 1))
+        .fill('')
+        .map(() => ['Communication', 'Technical', 'Management', 'Cleaning', 'Maintenance', 'Security', 'Administration', 'Customer Service'][Math.floor(Math.random() * 8)]),
+      bloodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'][Math.floor(Math.random() * 8)],
+      dateOfBirth,
+      gender
+    };
+  });
+};
+
+const createMockSecurityEntries = (count: number): SecurityDirectoryEntry[] => {
+  const names = [
+    'Michael Chang', 'Abdul Rahman', 'Dwayne Carter', 'Gabriel Martinez', 'Victor Okafor',
+    'Kwame Mensah', 'Samuel Patel', 'Omar Hassan', 'Leon Jenkins', 'Derek Robinson',
+    'Raymond Wong', 'Terrence Washington', 'Imran Khan', 'Mateo Fernandez', 'Jaiden Williams',
+    'Hector Gonzalez', 'Malcolm Stevens', 'Dante Edwards', 'Byron Hayes', 'Kenji Nakamura'
+  ];
+
+  return Array.from({ length: count }, (_, i) => {
+    const name = names[i % names.length];
+    const email = `${name.toLowerCase().replace(' ', '.')}@serenitysecurity.com`;
+    
+    const role = Object.values(SecurityRole)[Math.floor(Math.random() * Object.values(SecurityRole).length)];
+    const dateJoined = generateRandomDate(new Date(2019, 0, 1), new Date());
+    const dateOfBirth = generateRandomDate(new Date(1970, 0, 1), new Date(2000, 0, 1));
+    const gender = ['MALE', 'FEMALE', 'OTHER'][Math.floor(Math.random() * 3)] as 'MALE' | 'FEMALE' | 'OTHER';
+    const licenseExpiryDate = new Date();
+    licenseExpiryDate.setFullYear(licenseExpiryDate.getFullYear() + Math.floor(Math.random() * 3) + 1);
+    
+    return {
+      id: 3000 + i,
+      type: DirectoryEntryType.SECURITY,
+      name,
+      email,
+      phone: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      address: `${Math.floor(Math.random() * 9000 + 1000)} Security Ave, City, State, Zip`,
+      profilePicture: Math.random() > 0.2 ? `https://i.pravatar.cc/150?img=${(i % 70) + 40}` : undefined,
+      status: Math.random() > 0.1 ? PersonStatus.ACTIVE : Object.values(PersonStatus)[Math.floor(Math.random() * Object.values(PersonStatus).length)],
+      dateJoined,
+      emergencyContact: `+1-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+      documents: Array(Math.floor(Math.random() * 5 + 3)).fill('').map(() => `security-doc-${Math.random().toString(36).substring(7)}.pdf`),
+      notes: Math.random() > 0.5 ? `Notes for ${name}` : undefined,
+      createdAt: new Date(dateJoined.getTime() - 1000 * 60 * 60 * 24 * 2),
+      updatedAt: new Date(),
+      role,
+      department: Department.SECURITY,
+      employeeId: `SEC-${Math.floor(Math.random() * 9000 + 1000)}`,
+      salary: Math.floor(Math.random() * 2000 + 1800) * 100,
+      shift: ['DAY', 'NIGHT', 'ROTATING'][Math.floor(Math.random() * 3)] as 'DAY' | 'NIGHT' | 'ROTATING',
+      licenseNumber: `SEC-LIC-${Math.floor(Math.random() * 9000 + 1000)}`,
+      licenseExpiryDate,
+      trainingCertificates: Array(Math.floor(Math.random() * 4 + 1))
+        .fill('')
+        .map(() => ['First Aid', 'Self Defense', 'Fire Safety', 'Emergency Response', 'Access Control'][Math.floor(Math.random() * 5)]),
+      supervisorId: Math.random() > 0.7 ? 3000 + Math.floor(Math.random() * count) : undefined,
+      supervisorName: Math.random() > 0.7 ? names[Math.floor(Math.random() * names.length)] : undefined,
+      assignedGates: Array(Math.floor(Math.random() * 3 + 1))
+        .fill('')
+        .map(() => ['Main Gate', 'Back Gate', 'Delivery Gate', 'Parking Gate', 'Pedestrian Gate', 'Service Gate'][Math.floor(Math.random() * 6)]),
+      bloodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'][Math.floor(Math.random() * 8)],
+      dateOfBirth,
+      gender
+    };
+  });
+};
+
+const createAllMockDirectoryEntries = (): DirectoryEntry[] => {
+  const members = createMockMemberEntries(30);
+  const vendors = createMockVendorEntries(15);
+  const staff = createMockStaffEntries(20);
+  const security = createMockSecurityEntries(10);
+  
+  return [...members, ...vendors, ...staff, ...security];
+};
+
+const SocietyDirectoryPage: React.FC = () => {
+  // Mock data
+
+const FilterContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[4]};
+  align-items: center;
+`;
+
+const StyledSearchBar = styled(SearchBar)`
+  min-width: 300px;
+  flex: 1;
+`;
+
+const TableContainer = styled.div`
+  background: ${({ theme }) => theme.colors.white};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  overflow: hidden;
+  margin-top: ${({ theme }) => theme.spacing[4]};
+`;
+
+const NoResults = styled.div`
+  text-align: center;
+  padding: ${({ theme }) => theme.spacing[8]};
+  color: ${({ theme }) => theme.colors.gray[500]};
+`;
+
+const StatsContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-bottom: ${({ theme }) => theme.spacing[6]};
+`;
+
+const StatCard = styled.div`
+  background: ${({ theme }) => theme.colors.white};
+  padding: ${({ theme }) => theme.spacing[4]};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+`;
+
+const StatIcon = styled.div<{ color?: string }>`
+  width: 40px;
+  height: 40px;
+  border-radius: ${({ theme }) => theme.borderRadius.full};
+  background: ${({ theme, color }) => color || theme.colors.primary[100]};
+  color: ${({ theme, color }) => color ? theme.colors.white : theme.colors.primary[600]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+`;
+
+const StatInfo = styled.div`
+  flex: 1;
+`;
+
+const StatValue = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.gray[900]};
+`;
+
+const StatLabel = styled.div`
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  color: ${({ theme }) => theme.colors.gray[600]};
+`;
+
+const SocietyDirectoryPage: React.FC = () => {
+  // State
+  const [activeTab, setActiveTab] = useState<DirectoryEntryType>(DirectoryEntryType.MEMBER);
+  const [searchFilters, setSearchFilters] = useState<DirectorySearchFilters>({
+    searchTerm: '',
+    entryType: DirectoryEntryType.MEMBER,
+    status: undefined,
+    role: undefined,
+    department: undefined,
+    unitNumber: undefined,
+    vendorType: undefined
+  });
+  const [sortOptions, setSortOptions] = useState<DirectorySortOptions>({
+    field: DirectorySortField.NAME,
+    direction: SortDirection.ASC
+  });
+  const [pagination, setPagination] = useState<DirectoryPaginationOptions>({
+    page: 1,
+    limit: 10,
+    total: 0
+  });
+  const [selectedEntry, setSelectedEntry] = useState<DirectoryEntry | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Mock data
+  const allEntries = useMemo(() => createAllMockDirectoryEntries(), []);
+
+  // Filtered and sorted entries
+  const filteredEntries = useMemo(() => {
+    let filtered = allEntries.filter(entry => entry.type === activeTab);
+
+    // Apply search term filter
+    if (searchFilters.searchTerm) {
+      const searchTerm = searchFilters.searchTerm.toLowerCase();
+      filtered = filtered.filter(entry =>
+        entry.name.toLowerCase().includes(searchTerm) ||
+        entry.email.toLowerCase().includes(searchTerm) ||
+        entry.phone.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Apply status filter
+    if (searchFilters.status) {
+      filtered = filtered.filter(entry => entry.status === searchFilters.status);
+    }
+
+    // Apply type-specific filters
+    switch (activeTab) {
+      case DirectoryEntryType.MEMBER:
+        if (searchFilters.role as MemberRole) {
+          filtered = filtered.filter(entry => 
+            'role' in entry && entry.role === searchFilters.role
+          );
+        }
+        if (searchFilters.unitNumber) {
+          filtered = filtered.filter(entry =>
+            'unitNumber' in entry && entry.unitNumber.includes(searchFilters.unitNumber)
+          );
+        }
+        break;
+      
+      case DirectoryEntryType.VENDOR:
+        if (searchFilters.vendorType as VendorType) {
+          filtered = filtered.filter(entry =>
+            'vendorType' in entry && entry.vendorType === searchFilters.vendorType
+          );
+        }
+        break;
+
+      case DirectoryEntryType.STAFF:
+      case DirectoryEntryType.SECURITY:
+        if (searchFilters.department) {
+          filtered = filtered.filter(entry =>
+            'department' in entry && entry.department === searchFilters.department
+          );
+        }
+        break;
+    }
+
+    // Sort entries
+    filtered.sort((a, b) => {
+      let aValue = a[sortOptions.field];
+      let bValue = b[sortOptions.field];
+
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue < bValue) return sortOptions.direction === SortDirection.ASC ? -1 : 1;
+      if (aValue > bValue) return sortOptions.direction === SortDirection.ASC ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  }, [allEntries, activeTab, searchFilters, sortOptions]);
+
+  // Paginated entries
+  const paginatedEntries = useMemo(() => {
+    const startIndex = (pagination.page - 1) * pagination.limit;
+    const endIndex = startIndex + pagination.limit;
+    return filteredEntries.slice(startIndex, endIndex);
+  }, [filteredEntries, pagination]);
+
+  // Update total count when filtered entries change
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      total: filteredEntries.length
+    }));
+  }, [filteredEntries.length]);
+
+  // Statistics
+  const stats: DirectoryStats = useMemo(() => ({
+    totalMembers: allEntries.filter(e => e.type === DirectoryEntryType.MEMBER).length,
+    totalVendors: allEntries.filter(e => e.type === DirectoryEntryType.VENDOR).length,
+    totalStaff: allEntries.filter(e => e.type === DirectoryEntryType.STAFF).length,
+    totalSecurity: allEntries.filter(e => e.type === DirectoryEntryType.SECURITY).length,
+    activeEntries: allEntries.filter(e => e.status === PersonStatus.ACTIVE).length,
+    inactiveEntries: allEntries.filter(e => e.status !== PersonStatus.ACTIVE).length
+  }), [allEntries]);
+
+  // Event handlers
+  const handleTabChange = (tab: DirectoryEntryType) => {
+    setActiveTab(tab);
+    setPagination(prev => ({ ...prev, page: 1 }));
+    setSearchFilters(prev => ({
+      ...prev,
+      entryType: tab,
+      role: undefined,
+      department: undefined,
+      unitNumber: undefined,
+      vendorType: undefined
+    }));
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchFilters(prev => ({ ...prev, searchTerm: term }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const handleSort = (field: DirectorySortField) => {
+    setSortOptions(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === SortDirection.ASC
+        ? SortDirection.DESC
+        : SortDirection.ASC
+    }));
+  };
+
+  const handleExport = () => {
+    // TODO: Implement export functionality
+    toast.info('Export functionality coming soon!');
+  };
+
+  const handleViewDetails = (entry: DirectoryEntry) => {
+    setSelectedEntry(entry);
+    setIsModalOpen(true);
+  };
+
+  // Render functions
+  const renderTabs = () => (
+    <TabsContainer>
+      <Tab
+        active={activeTab === DirectoryEntryType.MEMBER}
+        onClick={() => handleTabChange(DirectoryEntryType.MEMBER)}
+      >
+        <FiUsers /> Members ({stats.totalMembers})
+      </Tab>
+      <Tab
+        active={activeTab === DirectoryEntryType.VENDOR}
+        onClick={() => handleTabChange(DirectoryEntryType.VENDOR)}
+      >
+        <FiTruck /> Vendors ({stats.totalVendors})
+      </Tab>
+      <Tab
+        active={activeTab === DirectoryEntryType.STAFF}
+        onClick={() => handleTabChange(DirectoryEntryType.STAFF)}
+      >
+        <FiBriefcase /> Staff ({stats.totalStaff})
+      </Tab>
+      <Tab
+        active={activeTab === DirectoryEntryType.SECURITY}
+        onClick={() => handleTabChange(DirectoryEntryType.SECURITY)}
+      >
+        <FiShield /> Security ({stats.totalSecurity})
+      </Tab>
+    </TabsContainer>
+  );
+
+  const renderFilters = () => (
+    <FilterContainer>
+      <StyledSearchBar
+        value={searchFilters.searchTerm}
+        onChange={e => handleSearch(e.target.value)}
+        placeholder="Search by name, email, or phone number..."
+        icon={<FiSearch />}
+      />
+      <FilterGroup>
+        <FilterLabel>Status</FilterLabel>
+        <Select
+          value={searchFilters.status || ''}
+          onChange={e => setSearchFilters(prev => ({ ...prev, status: e.target.value as PersonStatus || undefined }))}
+        >
+          <option value="">All Status</option>
+          {Object.values(PersonStatus).map(status => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </Select>
+      </FilterGroup>
+      {activeTab === DirectoryEntryType.MEMBER && (
+        <>
+          <FilterGroup>
+            <FilterLabel>Role</FilterLabel>
+            <Select
+              value={searchFilters.role || ''}
+              onChange={e => setSearchFilters(prev => ({ ...prev, role: e.target.value as MemberRole || undefined }))}
+            >
+              <option value="">All Roles</option>
+              {Object.values(MemberRole).map(role => (
+                <option key={role} value={role}>{role}</option>
+              ))}
+            </Select>
+          </FilterGroup>
+          <FilterGroup>
+            <FilterLabel>Unit Number</FilterLabel>
+            <SearchBar
+              value={searchFilters.unitNumber || ''}
+              onChange={e => setSearchFilters(prev => ({ ...prev, unitNumber: e.target.value || undefined }))}
+              placeholder="Search unit number..."
+              icon={<FiSearch />}
+            />
+          </FilterGroup>
+        </>
+      )}
+      {activeTab === DirectoryEntryType.VENDOR && (
+        <FilterGroup>
+          <FilterLabel>Vendor Type</FilterLabel>
+          <Select
+            value={searchFilters.vendorType || ''}
+            onChange={e => setSearchFilters(prev => ({ ...prev, vendorType: e.target.value as VendorType || undefined }))}
+          >
+            <option value="">All Types</option>
+            {Object.values(VendorType).map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </Select>
+        </FilterGroup>
+      )}
+      {(activeTab === DirectoryEntryType.STAFF || activeTab === DirectoryEntryType.SECURITY) && (
+        <FilterGroup>
+          <FilterLabel>Department</FilterLabel>
+          <Select
+            value={searchFilters.department || ''}
+            onChange={e => setSearchFilters(prev => ({ ...prev, department: e.target.value as Department || undefined }))}
+          >
+            <option value="">All Departments</option>
+            {Object.values(Department).map(dept => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
+          </Select>
+        </FilterGroup>
+      )}
+    </FilterContainer>
+  );
+
+  const renderStats = () => (
+    <StatsContainer>
+      <StatCard>
+        <StatIcon color={theme.colors.primary[500]}>
+          <FiUsers />
+        </StatIcon>
+        <StatInfo>
+          <StatValue>{stats.totalMembers}</StatValue>
+          <StatLabel>Total Members</StatLabel>
+        </StatInfo>
+      </StatCard>
+      <StatCard>
+        <StatIcon color={theme.colors.success[500]}>
+          <FiTruck />
+        </StatIcon>
+        <StatInfo>
+          <StatValue>{stats.totalVendors}</StatValue>
+          <StatLabel>Total Vendors</StatLabel>
+        </StatInfo>
+      </StatCard>
+      <StatCard>
+        <StatIcon color={theme.colors.warning[500]}>
+          <FiBriefcase />
+        </StatIcon>
+        <StatInfo>
+          <StatValue>{stats.totalStaff}</StatValue>
+          <StatLabel>Total Staff</StatLabel>
+        </StatInfo>
+      </StatCard>
+      <StatCard>
+        <StatIcon color={theme.colors.error[500]}>
+          <FiShield />
+        </StatIcon>
+        <StatInfo>
+          <StatValue>{stats.totalSecurity}</StatValue>
+          <StatLabel>Security Personnel</StatLabel>
+        </StatInfo>
+      </StatCard>
+    </StatsContainer>
+  );
+
+  const renderTable = () => (
+    <TableContainer>
+      <Table>
+        <thead>
+          <tr>
+            <TableHeader>Name</TableHeader>
+            <TableHeader>Contact</TableHeader>
+            {activeTab === DirectoryEntryType.MEMBER && (
+              <>
+                <TableHeader>Unit</TableHeader>
+                <TableHeader>Role</TableHeader>
+              </>
+            )}
+            {activeTab === DirectoryEntryType.VENDOR && (
+              <>
+                <TableHeader>Company</TableHeader>
+                <TableHeader>Type</TableHeader>
+              </>
+            )}
+            {(activeTab === DirectoryEntryType.STAFF || activeTab === DirectoryEntryType.SECURITY) && (
+              <>
+                <TableHeader>Department</TableHeader>
+                <TableHeader>Role</TableHeader>
+              </>
+            )}
+            <TableHeader>Status</TableHeader>
+            <TableHeader>Actions</TableHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedEntries.map(entry => (
+            <TableRow key={entry.id}>
+              <TableCell>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {entry.profilePicture ? (
+                    <img
+                      src={entry.profilePicture}
+                      alt={entry.name}
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: theme.colors.gray[200],
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <FiUser />
+                    </div>
+                  )}
+                  {entry.name}
+                </div>
+              </TableCell>
+              <TableCell>
+                <div>
+                  {entry.email}
+                  <br />
+                  {entry.phone}
+                </div>
+              </TableCell>
+              {activeTab === DirectoryEntryType.MEMBER && 'unitNumber' in entry && (
+                <>
+                  <TableCell>{entry.unitNumber}</TableCell>
+                  <TableCell>{entry.role}</TableCell>
+                </>
+              )}
+              {activeTab === DirectoryEntryType.VENDOR && 'companyName' in entry && (
+                <>
+                  <TableCell>{entry.companyName}</TableCell>
+                  <TableCell>{entry.vendorType}</TableCell>
+                </>
+              )}
+              {(activeTab === DirectoryEntryType.STAFF || activeTab === DirectoryEntryType.SECURITY) && 'department' in entry && (
+                <>
+                  <TableCell>{entry.department}</TableCell>
+                  <TableCell>{entry.role}</TableCell>
+                </>
+              )}
+              <TableCell>
+                <Badge status={entry.status}>{entry.status}</Badge>
+              </TableCell>
+              <TableCell>
+                <IconButton onClick={() => handleViewDetails(entry)} aria-label="View details">
+                  <FiEye />
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </tbody>
+      </Table>
+      {paginatedEntries.length === 0 && (
+        <NoResults>
+          No results found. Try adjusting your filters.
+        </NoResults>
+      )}
+    </TableContainer>
+  );
+
+  return (
+    <PageContainer>
+      <PageHeader>
+        <HeaderTitle>
+          <FiUsers /> Society Directory
+        </HeaderTitle>
+        <HeaderActions>
+          <Button onClick={handleExport} icon={<FiDownload />}>
+            Export
+          </Button>
+        </HeaderActions>
+      </PageHeader>
+
+      {renderStats()}
+      {renderTabs()}
+      {renderFilters()}
+      {renderTable()}
+
+      <Pagination
+        currentPage={pagination.page}
+        totalPages={Math.ceil(filteredEntries.length / pagination.limit)}
+        onPageChange={page => setPagination(prev => ({ ...prev, page }))}
+      />
+
+      <DirectoryEntryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        entry={selectedEntry}
+      />
+    </PageContainer>
+  );
+};
+  
+  // We'll continue implementing the component state, view, and interactions in the next steps
+  
+  return (
+    <div>
+      <h1>Society Directory Page - Under Construction</h1>
+      <p>Total entries: {allEntries.length}</p>
+    </div>
+  );
+};
+
+export default SocietyDirectoryPage;

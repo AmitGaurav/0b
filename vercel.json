@@ -3,11 +3,19 @@
   "public": true,
   "builds": [
     {
+      "src": "serenity/package.json",
+      "use": "@vercel/node"
+    },
+    {
       "src": "**/*",
       "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/serenity/(.*)",
+      "dest": "/serenity/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "/$1"
