@@ -6,11 +6,27 @@
   "description": "Modular React application with authentication and user management",
   "scripts": {
     "start": "react-scripts start",
-    "build": "CI=false react-scripts build",
+    "build": "CI=false react-scripts build && npm run postbuild",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
+    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
+    "postbuild": "react-snap"
+  },
+  "reactSnap": {
+    "include": [
+      "/serenity",
+      "/serenity/auth/login",
+      "/serenity/dashboard",
+      "/serenity/my-society",
+      "/serenity/profile",
+      "/serenity/settings"
+    ],
+    "baseUrl": "https://zerobyte.co.in",
+    "minifyHtml": {
+      "collapseWhitespace": false,
+      "removeComments": false
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^2.9.11",
@@ -37,6 +53,7 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "http-proxy-middleware": "^3.0.5",
+    "react-snap": "^1.23.0",
     "typescript": "^4.9.5"
   },
   "browserslist": {

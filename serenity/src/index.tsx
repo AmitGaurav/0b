@@ -22,11 +22,17 @@ const queryClient = new QueryClient({
   },
 });
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const rootElement = document.getElementById('root') as HTMLElement;
 
-root.render(
+const render = (Component: React.ComponentType): void => {
+  if (rootElement.hasChildNodes()) {
+    ReactDOM.hydrateRoot(rootElement, <Component />);
+  } else {
+    ReactDOM.createRoot(rootElement).render(<Component />);
+  }
+};
+
+const Root = () => (
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename="/serenity">
@@ -51,3 +57,5 @@ root.render(
     </QueryClientProvider>
   </React.StrictMode>
 );
+
+render(Root);

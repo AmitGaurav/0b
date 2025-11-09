@@ -2,6 +2,10 @@
   "compilerOptions": {
     "ignoreDeprecations": "6.0",
     "target": "es5",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "lib": [
       "dom",
       "dom.iterable",
